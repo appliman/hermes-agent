@@ -1,0 +1,12 @@
+name: bot-sessions-explorer
+version: 1.0.0
+manifest_version: 1
+api_version: 1
+description: >
+  Explorateur en deux colonnes pour parcourir tous les bots locaux et distants
+  (multi-gateway) ainsi que leurs sessions (Bot Chat, standard, cron, groupe,
+  delegue, subagent) avec suivi temps reel.
+author: Appliman
+license: MIT
+requires_hermes: ">=0.23.0"
+tags: [desktop, bots, sessions, explorer, multi-gateway]
