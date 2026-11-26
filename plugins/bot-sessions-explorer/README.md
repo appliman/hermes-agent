@@ -1,44 +1,49 @@
 # Bots & Sessions Explorer (`bot-sessions-explorer`)
 
-Plugin Desktop pour **Hermes v0.23.2+** offrant une interface en deux colonnes pour explorer tous les bots (locaux et sur gateways distantes) ainsi que leurs sessions.
+Desktop plugin for **Hermes v0.23.2+** providing a docked two-column explorer to browse all available bots (local and remote gateways) and their sessions.
 
-## Fonctionnalités
+## Features
 
-- **Colonne gauche — Bots disponibles** :
-  - Regroupement par machine / gateway (`ConnectionGlyph`)
-  - Avatar (`Blobatar` ou image du profil), titre, nom de profil, description / dernier message
-  - État détaillé : `Connecté`, `Actif`, `Bot arrêté`, `Profil indisponible`, `Gateway inaccessible`, `Erreur d'autorisation`, `Connexion Desktop interrompue`
-  - Recherche en direct, sélection persistée (`ctx.storage`), double-clic pour ouvrir le Bot Chat, menu contextuel
-  - Colonne redimensionnable (largeur persistée)
-- **Colonne droite — Sessions du bot sélectionné** :
-  - Récupération via `host.listPersistedSessions(...)` avec fallback `session.list` et `session.active_list`
-  - Inclusion du `Bot Chat` canonique (`bot_chat`) et de la session récente
-  - Badges de type : `Bot Chat`, `Standard`, `Cron`, `Groupe`, `Délégué`, `Subagent`
-  - Tri par activité récente, recherche et filtres par type
-  - Ouverture directe dans Hermes au clic (`host.openSession`), menu contextuel (ouvrir, copier l'ID, afficher les détails)
-- **Temps réel & résilience** :
-  - Écoute des événements Hermes (`ctx.onEvent('*')`) avec invalidation ciblée + polling de secours (12 s)
-  - Compatible thème clair / sombre via les variables CSS Hermes (`--ui-*`)
+- **Left column — Available bots**:
+  - Grouped by machine / gateway (`ConnectionGlyph`)
+  - Avatar (`Blobatar` or profile image), title, profile name, description / last message preview
+  - Differentiated status: `Connected`, `Active`, `Bot stopped`, `Profile unavailable`, `Gateway unreachable`, `Authorization error`, `Desktop connection interrupted`
+  - Live search, persisted selection (`ctx.storage`), double-click to open Bot Chat, context menu
+  - Resizable column width (persisted)
+- **Right column — Selected bot sessions**:
+  - Fetches sessions via `host.listPersistedSessions(...)` with `session.list` and `session.active_list` fallbacks
+  - Includes the canonical `Bot Chat` (`bot_chat`) and recent session
+  - Session type badges: `Bot Chat`, `Regular`, `Cron`, `Group`, `Delegated`, `Subagent`
+  - Sorted by recent activity, with a `Hide cron` / `Cron hidden` toggle in the top bar
+  - `+ New session` button to start a new conversation for the selected bot
+  - Click a session to open it directly in Hermes (`host.openSession`), delete via hover trash icon or context menu (with confirmation), copy ID, or inspect details
+- **Real-time & resilience**:
+  - Listens to Hermes events (`ctx.onEvent('*')`) with targeted cache invalidation + 12s fallback polling
+  - Light/dark theme compatible via Hermes CSS variables (`--ui-*`)
 
-## Installation locale
+## Local Installation
 
-Le plugin est installé dans :
+Copy `desktop/plugin.js` to:
 
 ```text
 $HERMES_HOME/desktop-plugins/bot-sessions-explorer/plugin.js
 ```
 
-Dans Hermes Desktop, rechargez les plugins via la palette de commandes :
+In Hermes Desktop, reload plugins via the command palette:
 
 ```text
-⌘K (ou Ctrl+K) → Reload desktop plugins
+⌘K (or Ctrl+K) → Reload desktop plugins
 ```
 
-Puis ouvrez **Bots & Sessions** depuis la barre latérale gauche, la barre d'état (`Bots`) ou `Ctrl+K → Ouvrir Bots & Sessions`.
+Or install from Git in **Capabilities → Plugins → Install from Git** using:
 
-## Distribution (paquet Hermes)
+```text
+https://github.com/appliman/hermes-agent
+```
 
-Le paquet complet se trouve dans `plugins/bot-sessions-explorer/` :
+with subdirectory `plugins/bot-sessions-explorer`.
+
+## Package Structure
 
 ```text
 plugins/bot-sessions-explorer/

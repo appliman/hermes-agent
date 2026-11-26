@@ -3,9 +3,9 @@ version: 1.0.0
 manifest_version: 1
 api_version: 1
 description: >
-  Explorateur en deux colonnes pour parcourir tous les bots locaux et distants
-  (multi-gateway) ainsi que leurs sessions (Bot Chat, standard, cron, groupe,
-  delegue, subagent) avec suivi temps reel.
+  Two-column explorer for browsing all local and remote (multi-gateway) bots
+  and their sessions (Bot Chat, regular, cron, group, delegated, subagent) with
+  real-time status updates.
 author: Appliman
 license: MIT
 requires_hermes: ">=0.23.0"

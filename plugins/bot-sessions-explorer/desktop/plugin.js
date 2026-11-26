@@ -519,12 +519,12 @@ function ensureStyles() {
 }
 
 const SESSION_TYPE_LABELS = {
-  all: 'Toutes',
+  all: 'All',
   bot_chat: 'Bot Chat',
-  regular: 'Standard',
+  regular: 'Regular',
   cron: 'Cron',
-  group: 'Groupe',
-  delegated: 'Délégué',
+  group: 'Group',
+  delegated: 'Delegated',
   subagent: 'Subagent',
 }
 
@@ -540,15 +540,15 @@ const SESSION_TYPE_TONES = {
 function classifyError(error) {
   const msg = String(error?.message || error || '').trim()
   const lower = msg.toLowerCase()
-  if (!msg) return { kind: 'unknown', label: 'Erreur inconnue', tone: 'bad' }
+  if (!msg) return { kind: 'unknown', label: 'Unknown error', tone: 'bad' }
   if (/\b401\b|\b403\b|unauthorized|forbidden|auth|token|permission/.test(lower)) {
-    return { kind: 'auth_error', label: "Erreur d'autorisation", tone: 'bad', detail: msg }
+    return { kind: 'auth_error', label: 'Authorization error', tone: 'bad', detail: msg }
   }
   if (/unreachable|econnrefused|etimedout|enotfound|ssh|socket|network|offline|timed out|gateway unavailable/.test(lower)) {
-    return { kind: 'gateway_unreachable', label: 'Gateway inaccessible', tone: 'bad', detail: msg }
+    return { kind: 'gateway_unreachable', label: 'Gateway unreachable', tone: 'bad', detail: msg }
   }
   if (/not found|no such session|missing session/.test(lower)) {
-    return { kind: 'session_missing', label: 'Session inexistante', tone: 'warn', detail: msg }
+    return { kind: 'session_missing', label: 'Session not found', tone: 'warn', detail: msg }
   }
   return { kind: 'unknown', label: msg.slice(0, 80), tone: 'bad', detail: msg }
 }
@@ -564,16 +564,16 @@ function toMsTimestamp(value) {
 }
 
 function formatActivity(ms) {
-  if (!ms) return 'Aucune activité'
+  if (!ms) return 'No activity'
   try {
     const sec = Math.floor(ms / 1000)
     const elapsed = coarseElapsed(sec)
     if (typeof elapsed === 'string') return elapsed
     if (elapsed && typeof elapsed === 'object') {
-      if (elapsed.unit === 'now') return "À l'instant"
+      if (elapsed.unit === 'now') return 'Just now'
       if (elapsed.unit && elapsed.value !== undefined) {
         const u = elapsed.unit === 'day' || elapsed.unit === 'd'
-          ? 'j'
+          ? 'd'
           : elapsed.unit === 'hour' || elapsed.unit === 'h'
             ? 'h'
             : elapsed.unit === 'min' || elapsed.unit === 'm'
@@ -629,13 +629,13 @@ function sanitizeText(value) {
 
 function botStatusInfo(bot, gatewayState, busyBySession) {
   if (gatewayState && gatewayState !== 'open' && !bot.remoteSource) {
-    return { code: 'desktop_disconnected', label: 'Connexion Desktop interrompue', tone: 'bad' }
+    return { code: 'desktop_disconnected', label: 'Desktop connection interrupted', tone: 'bad' }
   }
   if (bot.sourceReachable === false) {
-    return { code: 'gateway_unreachable', label: 'Gateway inaccessible', tone: 'bad' }
+    return { code: 'gateway_unreachable', label: 'Gateway unreachable', tone: 'bad' }
   }
   if (bot.unserved) {
-    return { code: 'profile_unavailable', label: 'Profil indisponible', tone: 'warn' }
+    return { code: 'profile_unavailable', label: 'Profile unavailable', tone: 'warn' }
   }
   if (bot.sourceError) {
     const classified = classifyError(bot.sourceError)
@@ -650,12 +650,12 @@ function botStatusInfo(bot, gatewayState, busyBySession) {
     Boolean(bot.workerSessionActive)
 
   if (isBusy) {
-    return { code: 'active', label: 'Actif', tone: 'good' }
+    return { code: 'active', label: 'Active', tone: 'good' }
   }
   if (bot.stopped) {
-    return { code: 'stopped', label: 'Bot arrêté', tone: 'muted' }
+    return { code: 'stopped', label: 'Bot stopped', tone: 'muted' }
   }
-  return { code: 'available', label: 'Connecté', tone: 'good' }
+  return { code: 'available', label: 'Connected', tone: 'good' }
 }
 
 async function fetchBotsRoster() {
@@ -874,13 +874,13 @@ async function fetchBotSessions(bot, busyBySession) {
   if (bot.sourceReachable === false) {
     return {
       sessions: [],
-      error: { kind: 'gateway_unreachable', label: 'Gateway distante inaccessible', detail: bot.sourceError || '' },
+      error: { kind: 'gateway_unreachable', label: 'Remote gateway unreachable', detail: bot.sourceError || '' },
     }
   }
   if (bot.unserved) {
     return {
       sessions: [],
-      error: { kind: 'profile_unavailable', label: 'Profil indisponible sur cette gateway', detail: '' },
+      error: { kind: 'profile_unavailable', label: 'Profile unavailable on this gateway', detail: '' },
     }
   }
 
@@ -947,7 +947,7 @@ async function fetchBotSessions(bot, busyBySession) {
     const merged = {
       id,
       storedId: id,
-      title: sanitizeText(row?.title || existing?.title) || 'Session sans titre',
+      title: sanitizeText(row?.title || existing?.title) || 'Untitled session',
       profile: bot.profile,
       gateway: bot.gateway,
       sessionType: extra.sessionType || classifySessionType({ ...row, ...extra }),
@@ -1025,7 +1025,7 @@ async function openSessionInHermes(bot, session) {
       })
       return
     } catch (err) {
-      host.notifyError?.(err, "Impossible d'ouvrir la session")
+      host.notifyError?.(err, 'Could not open session')
       return
     }
   }
@@ -1071,7 +1071,7 @@ async function fetchSessionMessages(bot, session) {
     return {
       messages: [],
       inflight: null,
-      error: { kind: 'gateway_unreachable', label: 'Gateway distante inaccessible' },
+      error: { kind: 'gateway_unreachable', label: 'Remote gateway unreachable' },
     }
   }
 
@@ -1361,8 +1361,8 @@ function BotSessionsExplorerPage({ ctx }) {
                   setHideCron(next)
                   ctx.storage.set('hideCron', next)
                 },
-                title: hideCron ? 'Afficher les sessions cron' : 'Masquer les sessions cron',
-                children: hideCron ? 'Cron masqués' : 'Masquer cron',
+                title: hideCron ? 'Show cron sessions' : 'Hide cron sessions',
+                children: hideCron ? 'Cron hidden' : 'Hide cron',
               }),
               gatewayState && gatewayState !== 'open'
                 ? jsxs('span', {
@@ -1370,19 +1370,19 @@ function BotSessionsExplorerPage({ ctx }) {
                     'data-tone': 'bad',
                     children: [
                       jsx(StatusDot, { tone: 'bad' }),
-                      jsx('span', { children: 'Connexion Desktop interrompue' }),
+                      jsx('span', { children: 'Desktop connection interrupted' }),
                     ],
                   })
                 : jsxs('span', {
                     className: 'bse-status-line',
                     'data-tone': 'good',
-                    children: [jsx(StatusDot, { tone: 'good' }), jsx('span', { children: 'Temps réel actif' })],
+                    children: [jsx(StatusDot, { tone: 'good' }), jsx('span', { children: 'Live updates' })],
                   }),
               jsx(Button, {
                 variant: 'ghost',
                 size: 'sm',
                 onClick: refreshAll,
-                title: 'Actualiser bots et sessions',
+                title: 'Refresh bots and sessions',
                 children: RefreshIcon
                   ? jsx(RefreshIcon, { size: 14 })
                   : jsx(Codicon, { name: 'refresh', size: '0.85rem' }),
@@ -1408,7 +1408,7 @@ function BotSessionsExplorerPage({ ctx }) {
                   jsxs('div', {
                     className: 'bse-col-header-row',
                     children: [
-                      jsx('span', { className: 'bse-col-title', children: 'Bots disponibles' }),
+                      jsx('span', { className: 'bse-col-title', children: 'Available bots' }),
                       jsx('span', {
                         style: { fontSize: 11, color: 'var(--ui-text-tertiary)' },
                         children: `${filteredBots.length}`,
@@ -1418,7 +1418,7 @@ function BotSessionsExplorerPage({ ctx }) {
                   jsx(SearchField, {
                     value: botSearch,
                     onChange: (e) => setBotSearch(typeof e === 'string' ? e : e?.target?.value || ''),
-                    placeholder: 'Rechercher un bot ou une machine…',
+                    placeholder: 'Search a bot or machine…',
                   }),
                 ],
               }),
@@ -1432,17 +1432,17 @@ function BotSessionsExplorerPage({ ctx }) {
                       })
                     : rosterQuery.data?.error && bots.length === 0
                       ? jsx(ErrorState, {
-                          title: 'Impossible de charger les bots',
+                          title: 'Could not load bots',
                           description: classifyError(rosterQuery.data.error).label,
-                          children: jsx(Button, { size: 'sm', onClick: refreshAll, children: 'Réessayer' }),
+                          children: jsx(Button, { size: 'sm', onClick: refreshAll, children: 'Retry' }),
                         })
                       : botGroups.length === 0
                         ? jsx(EmptyState, {
-                            title: bots.length === 0 ? 'Aucun bot disponible' : 'Aucun bot correspondant',
+                            title: bots.length === 0 ? 'No bots available' : 'No matching bots',
                             description:
                               bots.length === 0
-                                ? 'Créez un profil ou connectez une gateway distante.'
-                                : 'Essayez un autre terme de recherche.',
+                                ? 'Create a profile or connect a remote gateway.'
+                                : 'Try a different search term.',
                           })
                         : botGroups.map((group) =>
                             jsxs(
@@ -1569,7 +1569,7 @@ function BotSessionsExplorerPage({ ctx }) {
                                                     })
                                                   }
                                                 },
-                                                children: 'Ouvrir le Bot Chat',
+                                                children: 'Open Bot Chat',
                                               }),
                                               jsx(ContextMenuItem, {
                                                 disabled: !bot.lastSession?.id,
@@ -1582,12 +1582,12 @@ function BotSessionsExplorerPage({ ctx }) {
                                                     })
                                                   }
                                                 },
-                                                children: 'Ouvrir la session récente',
+                                                children: 'Open recent session',
                                               }),
                                               jsx(ContextMenuSeparator, {}),
                                               jsx(ContextMenuItem, {
                                                 onSelect: refreshAll,
-                                                children: 'Actualiser',
+                                                children: 'Refresh',
                                               }),
                                             ],
                                           }),
@@ -1614,7 +1614,7 @@ function BotSessionsExplorerPage({ ctx }) {
                   e.preventDefault()
                   setDraggingSplit('left')
                 },
-                title: 'Redimensionner la colonne Bots',
+                title: 'Resize Bots column',
               })
             : null,
 
@@ -1652,10 +1652,10 @@ function BotSessionsExplorerPage({ ctx }) {
                                 }
                               }
                             },
-                            title: `Créer une nouvelle session pour ${selectedBot.title}`,
+                            title: `Create a new session for ${selectedBot.title}`,
                             children: [
                               jsx(Codicon, { name: 'add', size: '0.8rem' }),
-                              jsx('span', { children: 'Nouvelle session' }),
+                              jsx('span', { children: 'New session' }),
                             ],
                           }),
                         ],
@@ -1673,7 +1673,7 @@ function BotSessionsExplorerPage({ ctx }) {
                         children: [
                           jsx(Codicon, { name: 'warning', size: '0.9rem' }),
                           jsx('span', {
-                            children: `Gateway inaccessible (${selectedBot.machine})${selectedBot.sourceError ? ` — ${selectedBot.sourceError}` : ''}`,
+                            children: `Gateway unreachable (${selectedBot.machine})${selectedBot.sourceError ? ` — ${selectedBot.sourceError}` : ''}`,
                           }),
                         ],
                       })
@@ -1684,14 +1684,14 @@ function BotSessionsExplorerPage({ ctx }) {
                         'data-tone': 'warn',
                         children: [
                           jsx(Codicon, { name: 'info', size: '0.9rem' }),
-                          jsx('span', { children: 'Gateway joignable mais ce profil est indisponible sur cette instance.' }),
+                          jsx('span', { children: 'Gateway reachable, but this profile is unavailable on this instance.' }),
                         ],
                       })
                     : null,
                   !selectedBot
                     ? jsx(EmptyState, {
-                        title: 'Sélectionnez un bot',
-                        description: 'Choisissez un bot dans la colonne de gauche pour afficher ses sessions.',
+                        title: 'Select a bot',
+                        description: 'Choose a bot in the left column to view its sessions.',
                       })
                     : sessionsQuery.isLoading
                       ? jsx('div', {
@@ -1700,22 +1700,22 @@ function BotSessionsExplorerPage({ ctx }) {
                         })
                       : sessionsQuery.data?.error && rawSessions.length === 0
                         ? jsx(ErrorState, {
-                            title: 'Impossible de charger les sessions',
+                            title: 'Could not load sessions',
                             description: sessionsQuery.data.error.label,
                             children: jsx(Button, {
                               size: 'sm',
                               onClick: () =>
                                 queryClient.invalidateQueries({ queryKey: [PLUGIN_ID, 'sessions', selectedBot.key] }),
-                              children: 'Réessayer',
+                              children: 'Retry',
                             }),
                           })
                         : filteredSessions.length === 0
                           ? jsx(EmptyState, {
-                              title: rawSessions.length === 0 ? 'Aucune session' : 'Aucune session correspondante',
+                              title: rawSessions.length === 0 ? 'No sessions' : 'No matching sessions',
                               description:
                                 rawSessions.length === 0
-                                  ? 'Ce bot ne possède pas encore de conversation enregistrée.'
-                                  : 'Modifiez votre recherche ou le filtre par type.',
+                                  ? 'This bot has no saved conversations yet.'
+                                  : 'Adjust your search or type filter.',
                             })
                           : filteredSessions.map((session) => {
                               const isFocused = focusedStoredSessionId === session.storedId
@@ -1764,7 +1764,7 @@ function BotSessionsExplorerPage({ ctx }) {
                                                     className: 'bse-session-badges',
                                                     children: [
                                                       session.busy
-                                                        ? jsx(Badge, { variant: 'default', children: 'En cours' })
+                                                        ? jsx(Badge, { variant: 'default', children: 'Running' })
                                                         : null,
                                                       session.unread
                                                         ? jsx('span', { className: 'bse-unread-badge', children: '1' })
@@ -1774,7 +1774,7 @@ function BotSessionsExplorerPage({ ctx }) {
                                                         ? jsx('button', {
                                                             type: 'button',
                                                             className: 'bse-session-del',
-                                                            title: 'Supprimer cette session',
+                                                            title: 'Delete this session',
                                                             onClick: (e) => {
                                                               e.stopPropagation()
                                                               setDeleteTarget({ mode: 'single', session })
@@ -1816,19 +1816,19 @@ function BotSessionsExplorerPage({ ctx }) {
                                       children: [
                                         jsx(ContextMenuItem, {
                                           onSelect: () => openSessionInHermes(selectedBot, session),
-                                          children: 'Ouvrir dans Hermes',
+                                          children: 'Open in Hermes',
                                         }),
                                         jsx(ContextMenuItem, {
                                           onSelect: () => {
                                             writeClipboardText?.(session.storedId)
-                                            host.notify?.({ kind: 'info', message: 'Identifiant copié' })
+                                            host.notify?.({ kind: 'info', message: 'Session ID copied' })
                                           },
-                                          children: "Copier l'identifiant",
+                                          children: 'Copy session ID',
                                         }),
                                         jsx(ContextMenuSeparator, {}),
                                         jsx(ContextMenuItem, {
                                           onSelect: () => setDetailSession(session),
-                                          children: 'Afficher les détails',
+                                          children: 'Show details',
                                         }),
                                         session.sessionType !== 'bot_chat'
                                           ? jsxs(Fragment, {
@@ -1836,7 +1836,7 @@ function BotSessionsExplorerPage({ ctx }) {
                                                 jsx(ContextMenuSeparator, {}),
                                                 jsx(ContextMenuItem, {
                                                   onSelect: () => setDeleteTarget({ mode: 'single', session }),
-                                                  children: 'Supprimer la session',
+                                                  children: 'Delete session',
                                                 }),
                                               ],
                                             })
@@ -1866,15 +1866,15 @@ function BotSessionsExplorerPage({ ctx }) {
                 jsxs(DialogHeader, {
                   children: [
                     jsx(DialogTitle, { children: detailSession.title }),
-                    jsx(DialogDescription, { children: 'Détails de la session (lecture seule)' }),
+                    jsx(DialogDescription, { children: 'Session details (read-only)' }),
                   ],
                 }),
                 jsxs('div', {
                   className: 'bse-detail-grid',
                   children: [
-                    jsx('span', { className: 'bse-detail-key', children: 'Identifiant' }),
+                    jsx('span', { className: 'bse-detail-key', children: 'Session ID' }),
                     jsx('span', { className: 'bse-detail-val', children: detailSession.storedId }),
-                    jsx('span', { className: 'bse-detail-key', children: 'Profil' }),
+                    jsx('span', { className: 'bse-detail-key', children: 'Profile' }),
                     jsx('span', { className: 'bse-detail-val', children: detailSession.profile }),
                     jsx('span', { className: 'bse-detail-key', children: 'Gateway' }),
                     jsx('span', { className: 'bse-detail-val', children: detailSession.gateway }),
@@ -1883,9 +1883,9 @@ function BotSessionsExplorerPage({ ctx }) {
                       className: 'bse-detail-val',
                       children: SESSION_TYPE_LABELS[detailSession.sessionType] || detailSession.sessionType,
                     }),
-                    jsx('span', { className: 'bse-detail-key', children: 'Statut' }),
+                    jsx('span', { className: 'bse-detail-key', children: 'Status' }),
                     jsx('span', { className: 'bse-detail-val', children: detailSession.status }),
-                    jsx('span', { className: 'bse-detail-key', children: 'Dernière activité' }),
+                    jsx('span', { className: 'bse-detail-key', children: 'Last activity' }),
                     jsx('span', {
                       className: 'bse-detail-val',
                       children: detailSession.updatedAt
@@ -1896,7 +1896,7 @@ function BotSessionsExplorerPage({ ctx }) {
                     }),
                     jsx('span', { className: 'bse-detail-key', children: 'Messages' }),
                     jsx('span', { className: 'bse-detail-val', children: String(detailSession.messageCount ?? 0) }),
-                    jsx('span', { className: 'bse-detail-key', children: 'Modèle' }),
+                    jsx('span', { className: 'bse-detail-key', children: 'Model' }),
                     jsx('span', { className: 'bse-detail-val', children: detailSession.model || '—' }),
                   ],
                 }),
@@ -1906,9 +1906,9 @@ function BotSessionsExplorerPage({ ctx }) {
                       variant: 'outline',
                       onClick: () => {
                         writeClipboardText?.(detailSession.storedId)
-                        host.notify?.({ kind: 'info', message: 'Identifiant copié' })
+                        host.notify?.({ kind: 'info', message: 'Session ID copied' })
                       },
-                      children: "Copier l'ID",
+                      children: 'Copy ID',
                     }),
                     jsx(Button, {
                       onClick: () => {
@@ -1916,7 +1916,7 @@ function BotSessionsExplorerPage({ ctx }) {
                         setDetailSession(null)
                         if (selectedBot) openSessionInHermes(selectedBot, target)
                       },
-                      children: 'Ouvrir',
+                      children: 'Open',
                     }),
                   ],
                 }),
@@ -1938,14 +1938,14 @@ function BotSessionsExplorerPage({ ctx }) {
                     jsx(DialogTitle, {
                       children:
                         deleteTarget.mode === 'empty'
-                          ? `Supprimer ${deleteTarget.sessions.length} session(s) vide(s) ?`
-                          : 'Supprimer cette session ?',
+                          ? `Delete ${deleteTarget.sessions.length} empty session(s)?`
+                          : 'Delete this session?',
                     }),
                     jsx(DialogDescription, {
                       children:
                         deleteTarget.mode === 'empty'
-                          ? `Toutes les sessions sans message du bot ${selectedBot?.title || ''} seront définitivement supprimées.`
-                          : `La session « ${deleteTarget.session?.title || ''} » (${deleteTarget.session?.storedId || ''}) sera définitivement supprimée.`,
+                          ? `All empty sessions for ${selectedBot?.title || 'this bot'} will be permanently deleted.`
+                          : `Session "${deleteTarget.session?.title || ''}" (${deleteTarget.session?.storedId || ''}) will be permanently deleted.`,
                     }),
                   ],
                 }),
@@ -1955,7 +1955,7 @@ function BotSessionsExplorerPage({ ctx }) {
                       variant: 'outline',
                       disabled: deleting,
                       onClick: () => setDeleteTarget(null),
-                      children: 'Annuler',
+                      children: 'Cancel',
                     }),
                     jsx(Button, {
                       variant: 'destructive',
@@ -1982,8 +1982,8 @@ function BotSessionsExplorerPage({ ctx }) {
                               kind: 'success',
                               message:
                                 okCount === 1
-                                  ? 'Session supprimée'
-                                  : `${okCount} sessions supprimées`,
+                                  ? 'Session deleted'
+                                  : `${okCount} sessions deleted`,
                             })
                           }
                           if (lastErr && okCount === 0) {
@@ -1991,11 +1991,11 @@ function BotSessionsExplorerPage({ ctx }) {
                             if (msg.toLowerCase().includes('active session')) {
                               host.notify?.({
                                 kind: 'error',
-                                title: 'Impossible de supprimer la session',
-                                message: 'Cette session est ouverte ou active dans Hermes. Fermez son onglet puis réessayez.',
+                                title: 'Could not delete session',
+                                message: 'This session is currently open or active in Hermes. Close its tab and try again.',
                               })
                             } else {
-                              host.notifyError?.(lastErr, 'Impossible de supprimer la session')
+                              host.notifyError?.(lastErr, 'Could not delete session')
                             }
                           }
                           queryClient.invalidateQueries({ queryKey: [PLUGIN_ID, 'sessions', selectedBot.key] })
@@ -2005,7 +2005,7 @@ function BotSessionsExplorerPage({ ctx }) {
                           setDeleting(false)
                         }
                       },
-                      children: deleting ? 'Suppression…' : 'Supprimer',
+                      children: deleting ? 'Deleting…' : 'Delete',
                     }),
                   ],
                 }),
@@ -2020,7 +2020,7 @@ function BotSessionsExplorerPage({ ctx }) {
 export default {
   id: PLUGIN_ID,
   name: 'Bots & Sessions',
-  description: 'Explorateur en deux colonnes des bots locaux/distants et de leurs sessions.',
+  description: 'Two-column explorer for local and remote bots and their sessions.',
   defaultEnabled: true,
   register(ctx) {
     const openPane = () => {
@@ -2046,7 +2046,7 @@ export default {
         area: PALETTE_AREA,
         data: {
           id: `${PLUGIN_ID}.open`,
-          label: 'Ouvrir Bots & Sessions',
+          label: 'Open Bots & Sessions',
           keywords: ['bots', 'sessions', 'explorer', 'gateway'],
           run: openPane,
         },
@@ -2058,7 +2058,7 @@ export default {
         render: () =>
           jsxs('button', {
             type: 'button',
-            title: 'Ouvrir Bots & Sessions',
+            title: 'Open Bots & Sessions',
             onClick: openPane,
             style: {
               display: 'inline-flex',
