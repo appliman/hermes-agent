@@ -2,6 +2,8 @@
 
 Desktop plugin for **Hermes v0.23.2+** providing a docked two-column explorer to browse all available bots (local and remote gateways) and their sessions.
 
+![Bots & Sessions Explorer preview](../../docs/bot-sessions-explorer-preview.svg)
+
 ## Features
 
 - **Left column — Available bots**:
