@@ -29,12 +29,13 @@ A docked two-column explorer for Hermes Desktop that lets you browse all your lo
 
 #### Installation
 
-1. In Hermes Desktop, open **Capabilities → Plugins → Install from Git**.
-2. Enter:
-   ```text
-   https://github.com/appliman/hermes-agent
-   ```
-3. Select subdirectory `plugins/bot-sessions-explorer`.
+- **Hermes Marketplace**: [https://hermes-agent.nousresearch.com/marketplace/bot-sessions-explorer](https://hermes-agent.nousresearch.com/marketplace/bot-sessions-explorer)
+- **Hermes Desktop**: open **Capabilities → Plugins**, search for **`Bots & Sessions Explorer`** (`bot-sessions-explorer`), and click **Install**.
+- **Hermes CLI**:
+  ```bash
+  hermes plugins install bot-sessions-explorer
+  ```
+- **From Git**: in **Capabilities → Plugins → Install from Git**, enter `https://github.com/appliman/hermes-agent` and select subdirectory `plugins/bot-sessions-explorer`.
 
 Or for local development, copy `plugins/bot-sessions-explorer/desktop/plugin.js` to `$HERMES_HOME/desktop-plugins/bot-sessions-explorer/plugin.js` and run **`Ctrl+K` / `⌘K` → `Reload desktop plugins`**.
 

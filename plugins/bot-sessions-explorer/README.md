@@ -23,7 +23,17 @@ Desktop plugin for **Hermes v0.23.2+** providing a docked two-column explorer to
   - Listens to Hermes events (`ctx.onEvent('*')`) with targeted cache invalidation + 12s fallback polling
   - Light/dark theme compatible via Hermes CSS variables (`--ui-*`)
 
-## Local Installation
+## Installation
+
+- **Hermes Marketplace**: [https://hermes-agent.nousresearch.com/marketplace/bot-sessions-explorer](https://hermes-agent.nousresearch.com/marketplace/bot-sessions-explorer)
+- **Hermes Desktop**: open **Capabilities → Plugins**, search for **`Bots & Sessions Explorer`** (`bot-sessions-explorer`), and click **Install**.
+- **Hermes CLI**:
+  ```bash
+  hermes plugins install bot-sessions-explorer
+  ```
+- **From Git**: in **Capabilities → Plugins → Install from Git**, enter `https://github.com/appliman/hermes-agent` with subdirectory `plugins/bot-sessions-explorer`.
+
+### Local Development
 
 Copy `desktop/plugin.js` to:
 
@@ -36,14 +46,6 @@ In Hermes Desktop, reload plugins via the command palette:
 ```text
 ⌘K (or Ctrl+K) → Reload desktop plugins
 ```
-
-Or install from Git in **Capabilities → Plugins → Install from Git** using:
-
-```text
-https://github.com/appliman/hermes-agent
-```
-
-with subdirectory `plugins/bot-sessions-explorer`.
 
 ## Package Structure
 
